@@ -2,6 +2,7 @@ package top.vchar.db.mongo.morphia;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import org.mongodb.morphia.query.*;
 import top.vchar.db.mongo.morphia.bean.MongoResBean;
 import top.vchar.db.mongo.morphia.bean.MongoResPageBean;
 import top.vchar.db.util.DateUtil;
@@ -12,10 +13,6 @@ import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Key;
 import org.mongodb.morphia.logging.Logger;
 import org.mongodb.morphia.logging.MorphiaLoggerFactory;
-import org.mongodb.morphia.query.Criteria;
-import org.mongodb.morphia.query.FindOptions;
-import org.mongodb.morphia.query.Query;
-import org.mongodb.morphia.query.UpdateOperations;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -629,6 +626,111 @@ public class MongoService {
     //--------------------------查询 end-------------------------------
 
     //--------------------------更新 start-----------------------------
+
+    /**
+     * 执行更新操作
+     * @param query 更新条件Query
+     * @param updateOperations 更新信息UpdateOperations
+     * @param datastore 数据库连接Datastore
+     * @param <E> E
+     * @return 返回更新结果
+     */
+    public static <E> MongoResBean update(Query<E> query, UpdateOperations<E> updateOperations, Datastore datastore) {
+        MongoResBean resBean = new MongoResBean();
+        UpdateResults updateResults = datastore.update(query, updateOperations);
+        logger.info(updateResults.toString());
+        int count = updateResults.getUpdatedCount()+updateResults.getInsertedCount();
+        resBean.setCount(count);
+        if(count<1){
+            resBean.setStatus(false);
+            resBean.setCode(Constant.ERROR_CODE);
+            resBean.setMsg("There are no qualified data.");
+        }
+        return resBean;
+    }
+
+    /**
+     * 根据 _id 更新数据
+     * @param id _id
+     * @param updateOperations 更新信息UpdateOperations
+     * @param classz 对象的class
+     * @param datastore 数据库连接Datastore
+     * @param <E> E
+     * @return 返回更新结果
+     */
+    public static <E> MongoResBean updateById(String id, UpdateOperations<E> updateOperations, Class<E> classz, Datastore datastore) {
+        if(StringUtil.isEmpty(id)){
+            MongoResBean resBean = new MongoResBean();
+            resBean.setStatus(false);
+            resBean.setCode(Constant.ERROR_CODE);
+            resBean.setMsg("The 'id' can not be empty.");
+            resBean.setCount(0);
+            return resBean;
+        } else {
+            Query<E> query = datastore.createQuery(classz);
+            query.field("_id").equal(new ObjectId(id));
+            return update(query, updateOperations, datastore);
+        }
+    }
+
+    /**
+     * 根据 _id 更新数据
+     * @param id _id
+     * @param updateDateMap 更新信息map
+     * @param classz 对象的class
+     * @param datastore 数据库连接Datastore
+     * @param <E> E
+     * @return 返回更新结果
+     */
+    public static <E> MongoResBean updateById(String id, Map<String, Object> updateDateMap, Class<E> classz, Datastore datastore) {
+        MongoResBean resBean = new MongoResBean();
+        if(StringUtil.isEmpty(id)){
+            resBean.setStatus(false);
+            resBean.setCode(Constant.ERROR_CODE);
+            resBean.setMsg("The 'id' can not be empty.");
+            resBean.setCount(0);
+        }else if(null==updateDateMap || updateDateMap.isEmpty()){
+            resBean.setStatus(false);
+            resBean.setCode(Constant.ERROR_CODE);
+            resBean.setMsg("Don't find update info, please set update info.");
+            resBean.setCount(0);
+        }else {
+            UpdateOperations<E> updateOperations = datastore.createUpdateOperations(classz);
+            for(String key:updateDateMap.keySet()) {
+                updateOperations.set(key, updateDateMap.get(key));
+            }
+            resBean = updateById(id, updateOperations, classz, datastore);
+        }
+        return resBean;
+    }
+
+    /**
+     * 根据 map查询条件更新数据
+     * @param queryMap 查询条件
+     * @param updateDateMap 更新信息map
+     * @param classz 对象的class
+     * @param datastore 数据库连接Datastore
+     * @param <E> E
+     * @return 返回更新结果
+     */
+    public static <E> MongoResBean updateByMap( Map<String, Object> queryMap, Map<String, Object> updateDateMap, Class<E> classz, Datastore datastore) throws ParseException {
+        MongoResBean resBean = new MongoResBean();
+        if(null==updateDateMap || updateDateMap.isEmpty()){
+            resBean.setStatus(false);
+            resBean.setCode(Constant.ERROR_CODE);
+            resBean.setMsg("Don't find update info, please set update info.");
+            resBean.setCount(0);
+        }else {
+            Query<E> query = datastore.createQuery(classz);
+            makeQuery(queryMap, query, true);
+            UpdateOperations<E> updateOperations = datastore.createUpdateOperations(classz);
+            for(String key:updateDateMap.keySet()) {
+                updateOperations.set(key, updateDateMap.get(key));
+            }
+            resBean = update(query, updateOperations, datastore);
+        }
+        return resBean;
+    }
 
 
     //--------------------------更新 end-------------------------------

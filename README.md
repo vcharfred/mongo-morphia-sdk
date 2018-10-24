@@ -1,4 +1,4 @@
-# 
+# mongo-morphia-sdk
 ## 一、简介和说明
 这是一个对morphia操作mongodb的二次封装工具包，旨在简化某些操作；支持多个数据切换。
 
@@ -327,10 +327,59 @@ maven依赖如下：
         } catch (Exception e) {
             e.printStackTrace();
         }       
+
+### 3.4 更新数据
+* 执行更新操作
+
+        try {
+            Datastore datastore = MongoConnectUtil.getInstance().getDatastore();
+            Query<UserInfo> query = datastore.createQuery(UserInfo.class);
+            query.field("account").equal("root");
+            UpdateOperations<UserInfo> updateOperations = datastore.createUpdateOperations(UserInfo.class);
+            updateOperations.set("age", 100);
+            MongoResBean resBean = MongoService.update(query, updateOperations, datastore);
+            System.out.println(resBean.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+* 根据 _id 更新数据, 更新数据组装格式为UpdateOperations
+
+        try {
+            Datastore datastore = MongoConnectUtil.getInstance().getDatastore();
+            String id = "5bcec9d05be07628a8ddcc78";
+            UpdateOperations<UserInfo> updateOperations = datastore.createUpdateOperations(UserInfo.class);
+            updateOperations.set("account", "root1");
+            MongoResBean resBean = MongoService.updateById(id, updateOperations, UserInfo.class, datastore);
+            System.out.println(resBean.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+* 根据 _id 更新数据，更新数据组装格式为Map的数据
+
+        try {
+            String id = "5bcec9d05be07628a8ddcc78";
+            Map<String, Object> updateDateMap = new HashMap<>();
+            updateDateMap.put("account", "root");
+            MongoResBean resBean = MongoService.updateById(id, updateDateMap, UserInfo.class, MongoConnectUtil.getInstance().getDatastore());
+            System.out.println(resBean.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
  
+ * 根据组装的map条件，更新数据组装格式为Map的数据
+ 
+        try {
+             Map<String, Object> queryMap = new HashMap<>();
+             queryMap.put("_id", "5bcec9d05be07628a8ddcc78");
+             Map<String, Object> updateMap = new HashMap<>();
+             updateMap.put("account", "r");
+             updateMap.put("age", 1000);
+             MongoResBean resBean = MongoService.updateByMap(queryMap, updateMap, UserInfo.class, MongoConnectUtil.getInstance().getDatastore());
+             System.out.println(resBean.toString());
+         } catch (Exception e) {
+             e.printStackTrace();
+         }
 ##### 额外说明
 在使用map或json格式的条件时，可以使用现有已支持的标签，相关标签在```top.vchar.db.mongo.morphia.MongoSqlTag```中；具体说明见该类的注释
-
- 
-## 四、其他说明
-
