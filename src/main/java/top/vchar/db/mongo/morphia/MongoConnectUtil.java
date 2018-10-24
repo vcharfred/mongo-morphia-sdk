@@ -1,4 +1,4 @@
-package top.vchar.utils.mongo;
+package top.vchar.db.mongo.morphia;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -11,7 +11,7 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * <p> mongo配置 </p>
+ * <p> mongo config util, use this util to get mongodb dataStore </p>
  *
  * @author vchar fred
  * @version 1.0
@@ -44,9 +44,9 @@ public final class MongoConnectUtil {
         }
     }
 
-    //存储所有连接 URI.Key-value
+    //save all connection URI.Key-value
     private static Map<String, MongoClient> clientMap = new HashMap<>();
-    //存储配置文件 key-value
+    //save config data key-value
     private static Map<String, String> confMap = new HashMap<>();
 
 
@@ -147,7 +147,7 @@ public final class MongoConnectUtil {
             }
 
         }else{
-            throw new Exception("[ERROR]-----Load mongo.properties fail.");
+            throw new Exception("Load mongo.properties fail.");
         }
         return dbMap;
     }

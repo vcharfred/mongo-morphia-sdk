@@ -1,4 +1,4 @@
-package top.vchar.utils.mongo;
+package top.vchar.db.mongo.morphia;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -31,8 +31,8 @@ public final class ReadResourceConfUtil {
                 propertyValue = defaultValue;
             }
             return propertyValue;
-        } catch (IOException var6) {
-            var6.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return defaultValue;
     }
@@ -46,8 +46,8 @@ public final class ReadResourceConfUtil {
         Properties props = new Properties();
         try {
             props.load(ReadResourceConfUtil.class.getResourceAsStream(pathAndFileName));
-        } catch (IOException var3) {
-            var3.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
             props = null;
         }
         return props;

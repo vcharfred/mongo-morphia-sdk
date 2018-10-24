@@ -1,41 +1,54 @@
-package top.vchar.utils.mongo;
+package top.vchar.db.mongo.morphia.bean;
+
+import top.vchar.db.mongo.morphia.Constant;
 
 import java.io.Serializable;
 
 /**
- * <p> mongo返回结果bean </p>
+ * <p> mongo return result page bean </p>
  *
  * @author vchar fred
  * @version 1.0
  * @create_date 2018/9/4 18:12
  */
-public class MongoResBean implements Serializable{
+public class MongoResPageBean implements Serializable{
 
-    //成功 code
-    private final static String SUCCESS_CODE = "DB2000";
-    //业务处理失败 code
-    private final static String ERROR_CODE = "DB5000";
-    //发生异常 code
-    private final static String ERROR_EXCEPTION_CODE = "DB5001";
-
-    //true为成功，false为失败
+    //success is true，fail is false
     private boolean status = true;
-    //提示代码
-    private String code = SUCCESS_CODE;
-    //提示信息
-    private String msg;
-    //数据
+    //remind code
+    private String code = Constant.SUCCESS_CODE;
+    //remind msg
+    private String msg = "success";
+    //data
     private Object data;
 
-    //分页 当前页数
+    //page: page number
     private int pageIndex = 1;
-    //分页 每页条数
+    //page: Number each page
     private int pageSize = 10;
-    //分页 总条数
-    private int totalNum = 0;
-    //分页 总页数
-    private int totalPage = 0;
+    //page: return num
+    private int count = 0;
+    //page： total num
+    private long totalNum = 0;
+    //page total page num
+    private long totalPage = 0;
 
+    public MongoResPageBean(){
+
+    }
+
+    public MongoResPageBean(int pageIndex, int pageSize){
+        this.pageIndex = pageIndex;
+        this.pageSize = pageSize;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
 
     public String getMsg() {
         return msg;
@@ -85,11 +98,11 @@ public class MongoResBean implements Serializable{
         this.pageSize = pageSize;
     }
 
-    public int getTotalNum() {
+    public long getTotalNum() {
         return totalNum;
     }
 
-    public void setTotalNum(int totalNum) {
+    public void setTotalNum(long totalNum) {
         this.totalNum = totalNum;
         //计算总页数
         if(this.totalNum<1 || pageSize==0){
@@ -102,7 +115,7 @@ public class MongoResBean implements Serializable{
         }
     }
 
-    public int getTotalPage() {
+    public long getTotalPage() {
         return totalPage;
     }
 
@@ -115,8 +128,10 @@ public class MongoResBean implements Serializable{
                 ", data=" + data +
                 ", pageIndex=" + pageIndex +
                 ", pageSize=" + pageSize +
+                ", count="+count+
                 ", totalNum=" + totalNum +
                 ", totalPage=" + totalPage +
                 '}';
     }
 }
+
