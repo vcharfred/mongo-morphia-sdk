@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import org.mongodb.morphia.query.*;
 import top.vchar.db.mongo.morphia.bean.MongoResBean;
 import top.vchar.db.mongo.morphia.bean.MongoResPageBean;
-import top.vchar.db.util.DateUtil;
 import top.vchar.db.util.StringUtil;
 import com.mongodb.WriteResult;
 import org.bson.types.ObjectId;
@@ -14,7 +13,6 @@ import org.mongodb.morphia.Key;
 import org.mongodb.morphia.logging.Logger;
 import org.mongodb.morphia.logging.MorphiaLoggerFactory;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -143,9 +141,8 @@ public class MongoService {
      * @param datastore 数据库连接Datastore
      * @param <E> E
      * @return 返回删除结果
-     * @throws ParseException
      */
-    public static <E> MongoResBean delByJsonSql(String sql, boolean allowEmpty, Class<E> classz, Datastore datastore) throws ParseException {
+    public static <E> MongoResBean delByJsonSql(String sql, boolean allowEmpty, Class<E> classz, Datastore datastore) {
         Query<E> query = datastore.createQuery(classz);
         makeQuery((Map) JSON.parse(sql), query, allowEmpty);
         WriteResult writeResult = datastore.delete(query);
@@ -297,7 +294,7 @@ public class MongoService {
      * @param classz 映射类Class
      * @return 查询成功返回数据，否则返回null
      */
-    public static <E> E queryOneByMap(Map<String, Object> paramMap, boolean allowEmpty, Class<E> classz, Datastore datastore) throws ParseException {
+    public static <E> E queryOneByMap(Map<String, Object> paramMap, boolean allowEmpty, Class<E> classz, Datastore datastore) {
         List<E> list = queryAllByMap(paramMap, allowEmpty, classz, datastore);
         if(null!=list && list.size()>0){
             if(list.size()>1)
@@ -314,7 +311,7 @@ public class MongoService {
      * @param classz 映射类Class
      * @return 查询成功返回数据，否则返回null
      */
-    public static <E> List<E> queryAllByMap(Map<String, Object> paramMap, boolean allowEmpty, Class<E> classz, Datastore datastore) throws ParseException {
+    public static <E> List<E> queryAllByMap(Map<String, Object> paramMap, boolean allowEmpty, Class<E> classz, Datastore datastore) {
         Query<E> query = datastore.createQuery(classz);
         makeQuery(paramMap, query, allowEmpty);//组装sql
         List<E> list = query.asList();
@@ -333,7 +330,7 @@ public class MongoService {
      * @param classz 映射类Class
      * @return 查询成功返回数据，否则返回null
      */
-    public static <E> MongoResPageBean queryPageByMap(Map<String, Object> paramMap, int pageIndex, int pageSize, boolean allowEmpty, Class<E> classz, Datastore datastore) throws ParseException {
+    public static <E> MongoResPageBean queryPageByMap(Map<String, Object> paramMap, int pageIndex, int pageSize, boolean allowEmpty, Class<E> classz, Datastore datastore) {
         Query<E> query = datastore.createQuery(classz);
         makeQuery(paramMap, query, allowEmpty);//组装sql
         return queryPage(query, new MongoResPageBean(pageIndex, pageSize));
@@ -347,7 +344,7 @@ public class MongoService {
      * @param classz 映射类Class
      * @return 查询成功返回数据，否则返回null
      */
-    public static <E> E queryOneByJsonStr(String param, boolean allowEmpty, Class<E> classz, Datastore datastore) throws ParseException {
+    public static <E> E queryOneByJsonStr(String param, boolean allowEmpty, Class<E> classz, Datastore datastore) {
         List<E> list = queryAllByJsonStr(param, allowEmpty, classz, datastore);
         if(null!=list && list.size()>0){
             if(list.size()>1)
@@ -363,7 +360,7 @@ public class MongoService {
      * @param classz 映射类Class
      * @return 返回查询结果
      */
-    public static <E> List<E> queryAllByJsonStr(String param, boolean allowEmpty, Class<E> classz, Datastore datastore) throws ParseException {
+    public static <E> List<E> queryAllByJsonStr(String param, boolean allowEmpty, Class<E> classz, Datastore datastore) {
         Query<E> query = datastore.createQuery(classz);
         makeQuery((Map) JSON.parse(param), query, allowEmpty);
         List<E> list = query.asList();
@@ -381,7 +378,7 @@ public class MongoService {
      * @param classz 映射类Class
      * @return 返回查询结果
      */
-    public static <E> MongoResPageBean queryPageByJsonStr(String param, boolean allowEmpty, int pageIndex, int pageSize, Class<E> classz, Datastore datastore) throws ParseException {
+    public static <E> MongoResPageBean queryPageByJsonStr(String param, boolean allowEmpty, int pageIndex, int pageSize, Class<E> classz, Datastore datastore){
         Query<E> query = datastore.createQuery(classz);
         makeQuery((Map) JSON.parse(param), query, allowEmpty);
         return queryPage(query, new MongoResPageBean(pageIndex, pageSize));
@@ -431,14 +428,51 @@ public class MongoService {
     }
 
     /**
+     * 查询符合条件的总条数
+     * @param query Query
+     * @return 返回结果
+     */
+    public static <E> long queryCount(Query<E> query){
+        return query.count();
+    }
+
+    /**
+     * 根据Map条件查询符合条件的总条数
+     * @param param 条件
+     * @param allowEmpty 是否允许空字符
+     * @param classz Class
+     * @param datastore Datastore
+     * @return 返回结果
+     */
+    public static <E> long queryCountByJsonStr(String param, boolean allowEmpty, Class<E> classz, Datastore datastore) {
+        Query<E> query = datastore.createQuery(classz);
+        makeQuery((Map) JSON.parse(param), query, allowEmpty);
+        return queryCount(query);
+    }
+
+    /**
+     * 根据Map条件查询符合条件的总条数
+     * @param paramMap 条件
+     * @param allowEmpty 是否允许空字符
+     * @param classz Class
+     * @param datastore Datastore
+     * @return 返回结果
+     */
+    public static <E> long queryCountByMap(Map<String, Object> paramMap, boolean allowEmpty, Class<E> classz, Datastore datastore) {
+        Query<E> query = datastore.createQuery(classz);
+        makeQuery(paramMap, query, allowEmpty);//组装sql
+        return queryCount(query);
+    }
+
+
+    /**
      * 根据json字符串组装查询条件
      * @param sqlMap 查询条件
      * @param query  Query
      * @param allowEmpty 是否允许空
      * @param <E> E
-     * @throws ParseException
      */
-    private static <E> void makeQuery(Map sqlMap, Query<E> query, boolean allowEmpty) throws ParseException {
+    private static <E> void makeQuery(Map sqlMap, Query<E> query, boolean allowEmpty) {
         if(!sqlMap.isEmpty()){
             if(null!=sqlMap.get("id") || null!=sqlMap.get("_id")){
                 String id = (String) sqlMap.get("id");
@@ -468,38 +502,6 @@ public class MongoService {
                         relKey = key.substring(10);
                     }
                     switch (prfitStr){
-                        //传入值 < 库中字段值
-                        case MongoSqlTag.GREATER_THAN_TAG:
-                            query.field(relKey).greaterThan(sqlMap.get(key));//大于
-                            break;
-                        //传入值 <= 库中字段值
-                        case MongoSqlTag.GREATER_THAN_OR_EQ_TAG:
-                            query.field(relKey).greaterThanOrEq(sqlMap.get(key));//大于等于
-                            break;
-                        //传入值 > 库中字段值
-                        case MongoSqlTag.LESS_THAN_TAG:
-                            query.field(relKey).lessThan(sqlMap.get(key));
-                            break;
-                        //传入值 >= 库中字段值
-                        case MongoSqlTag.LESS_THAN_OR_EQ_TAG:
-                            query.field(relKey).lessThanOrEq(sqlMap.get(key));
-                            break;
-                        //传入值 < 库中字段值 < 传入值
-                        case MongoSqlTag.GREATER_LESS_THAN_INTERVAL_TAG:
-                            query.and(query.criteria(relKey).greaterThan(sqlMap.get(key)), query.criteria(relKey).lessThan(sqlMap.get(key)));
-                            break;
-                        //传入值 <= 库中字段值 < 传入值
-                        case MongoSqlTag.GREATER_LESS_THAN_OR_EQ_INTERVAL_L_TAG:
-                            query.and(query.criteria(relKey).greaterThanOrEq(sqlMap.get(key)), query.criteria(relKey).lessThan(sqlMap.get(key)));
-                            break;
-                        //传入值 < 库中字段值 <= 传入值
-                        case MongoSqlTag.GREATER_LESS_THAN_OR_EQ_INTERVAL_R_TAG:
-                            query.and(query.criteria(relKey).greaterThan(sqlMap.get(key)), query.criteria(relKey).lessThanOrEq(sqlMap.get(key)));
-                            break;
-                        //传入值 <= 库中字段值 <= 传入值
-                        case MongoSqlTag.GREATER_LESS_THAN_OR_EQ_INTERVAL_LR_TAG:
-                            query.and(query.criteria(relKey).greaterThanOrEq(sqlMap.get(key)), query.criteria(relKey).lessThanOrEq(sqlMap.get(key)));
-                            break;
                         //多个传入值任意一个符合条件
                         case MongoSqlTag.LIST_OR_TAG:
                             String value = (String) sqlMap.get(key);
@@ -522,96 +524,6 @@ public class MongoService {
                                     criteria[i] = query.criteria(relKey).equal(values[i]);
                                 }
                                 query.and(criteria);
-                            }
-                            break;
-                        //传入值 < 库中时间类型字段值
-                        case MongoSqlTag.GREATER_THAN_DATA_TAG:
-                            //处理日期格式
-                            String[] arr = StringUtil.dealDateStr(relKey);
-                            relKey = arr[0];
-                            if(null==arr[1]){
-                                query.field(relKey).greaterThan(sqlMap.get(key));//大于
-                            }else{
-                                query.field(relKey).greaterThan(DateUtil.getDateByStr((String) sqlMap.get(key), arr[1]));//大于
-                            }
-                            break;
-                        //传入值 <= 库中时间类型字段值
-                        case MongoSqlTag.GREATER_THAN_OR_EQ_DATA_TAG:
-                            //处理日期格式
-                            arr = StringUtil.dealDateStr(relKey);
-                            relKey = arr[0];
-                            if(null==arr[1]){
-                                query.field(relKey).greaterThanOrEq(sqlMap.get(key));
-                            }else{
-                                query.field(relKey).greaterThanOrEq(DateUtil.getDateByStr((String) sqlMap.get(key), arr[1]));
-                            }
-                            break;
-                        //传入值 > 库中时间类型字段值
-                        case MongoSqlTag.LESS_THAN_DATA_TAG:
-                            //处理日期格式
-                            arr = StringUtil.dealDateStr(relKey);
-                            relKey = arr[0];
-                            if(null==arr[1]){
-                                query.field(relKey).lessThan(sqlMap.get(key));
-                            }else{
-                                query.field(relKey).lessThan(DateUtil.getDateByStr((String) sqlMap.get(key), arr[1]));
-                            }
-                            break;
-                        //传入值 >= 库中时间类型字段值
-                        case MongoSqlTag.LESS_THAN_OR_EQ_DATA_TAG:
-                            //处理日期格式
-                            arr = StringUtil.dealDateStr(relKey);
-                            relKey = arr[0];
-                            if(null==arr[1]){
-                                query.field(relKey).lessThanOrEq(sqlMap.get(key));
-                            }else{
-                                query.field(relKey).lessThanOrEq(DateUtil.getDateByStr((String) sqlMap.get(key), arr[1]));
-                            }
-                            break;
-                        //传入值 < 库中时间类型字段值 < 传入值
-                        case MongoSqlTag.GREATER_LESS_THAN_INTERVAL_DATA_TAG:
-                            //处理日期格式
-                            arr = StringUtil.dealDateStr(relKey);
-                            relKey = arr[0];
-                            if(null==arr[1]){
-                                query.and(query.criteria(relKey).greaterThan(sqlMap.get(key)), query.criteria(relKey).lessThan(sqlMap.get(key)));
-                            }else{
-                                query.and(query.criteria(relKey).greaterThan(DateUtil.getDateByStr((String) sqlMap.get(key), arr[1]))
-                                        , query.criteria(relKey).lessThan(DateUtil.getDateByStr((String) sqlMap.get(key), arr[1])));
-                            }
-                            break;
-                        //传入值 <= 库中时间类型字段值 < 传入值
-                        case MongoSqlTag.GREATER_LESS_THAN_OR_EQ_INTERVAL_L_DATA_TAG:
-                            //处理日期格式
-                            arr = StringUtil.dealDateStr(relKey);
-                            relKey = arr[0];
-                            if(null==arr[1]){
-                                query.and(query.criteria(relKey).greaterThanOrEq(sqlMap.get(key)), query.criteria(relKey).lessThan(sqlMap.get(key)));
-                            }else{
-                                query.and(query.criteria(relKey).greaterThanOrEq(DateUtil.getDateByStr((String) sqlMap.get(key), arr[1]))
-                                        , query.criteria(relKey).lessThan(DateUtil.getDateByStr((String) sqlMap.get(key), arr[1])));
-                            }
-                            break;
-                        //传入值 < 库中时间类型字段值 <= 传入值
-                        case MongoSqlTag.GREATER_LESS_THAN_OR_EQ_INTERVAL_R_DATA_TAG:
-                            arr = StringUtil.dealDateStr(relKey);
-                            relKey = arr[0];
-                            if(null==arr[1]) {
-                                query.and(query.criteria(relKey).greaterThan(sqlMap.get(key)), query.criteria(relKey).lessThanOrEq(sqlMap.get(key)));
-                            }else {
-                                query.and(query.criteria(relKey).greaterThan(DateUtil.getDateByStr((String) sqlMap.get(key), arr[1]))
-                                        , query.criteria(relKey).lessThanOrEq(DateUtil.getDateByStr((String) sqlMap.get(key), arr[1])));
-                            }
-                            break;
-                        //传入值 <= 库中时间类型字段值 <= 传入值
-                        case MongoSqlTag.GREATER_LESS_THAN_OR_EQ_INTERVAL_LR_DATA_TAG:
-                            arr = StringUtil.dealDateStr(relKey);
-                            relKey = arr[0];
-                            if(null==arr[1]) {
-                                query.and(query.criteria(relKey).greaterThanOrEq(sqlMap.get(key)), query.criteria(relKey).lessThanOrEq(sqlMap.get(key)));
-                            }else {
-                                query.and(query.criteria(relKey).greaterThanOrEq(DateUtil.getDateByStr((String) sqlMap.get(key), arr[1]))
-                                        , query.criteria(relKey).lessThanOrEq(DateUtil.getDateByStr((String) sqlMap.get(key), arr[1])));
                             }
                             break;
                         default:
@@ -713,7 +625,7 @@ public class MongoService {
      * @param <E> E
      * @return 返回更新结果
      */
-    public static <E> MongoResBean updateByMap( Map<String, Object> queryMap, Map<String, Object> updateDateMap, Class<E> classz, Datastore datastore) throws ParseException {
+    public static <E> MongoResBean updateByMap( Map<String, Object> queryMap, Map<String, Object> updateDateMap, Class<E> classz, Datastore datastore) {
         MongoResBean resBean = new MongoResBean();
         if(null==updateDateMap || updateDateMap.isEmpty()){
             resBean.setStatus(false);
