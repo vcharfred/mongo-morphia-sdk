@@ -68,7 +68,7 @@ maven依赖如下：
 ## 三、工具方法使用说明
 ### 3.1 获取Datastore
 
-所在类路径：```com.bxhh.db.mongo.morphia.MongoConnectUtil```
+所在类路径：```top.vchar.db.mongo.morphia.MongoConnectUtil```
 
 * 获取默认的连接
 
