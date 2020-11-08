@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>top.vchar.db</groupId>
-    <artifactId>mongo-morphia-sdk</artifactId>
+    <artifactId>mongo-morphia-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     <description>morphia框架操作mongodb的相关方法二次封装开发</description>
 
     <properties>
@@ -20,41 +20,6 @@
         <mongo.version>3.6.4</mongo.version>
         <fastjson.version>1.2.75</fastjson.version>
     </properties>
-
-    <dependencies>
-        <!--fastjson start-->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>${fastjson.version}</version>
-        </dependency>
-        <!--fastjson end-->
-        <!--mongodb start-->
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver</artifactId>
-            <version>${mongo.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>${mongo.version}</version>
-        </dependency>
-        <!--mongodb end-->
-        <!--morphia start-->
-        <dependency>
-            <groupId>org.mongodb.morphia</groupId>
-            <artifactId>morphia</artifactId>
-            <version>${morphia.version}</version>
-        </dependency>
-        <!--morphia end-->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.1</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
 
     <build>
         <resources>
